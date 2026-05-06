@@ -67,11 +67,6 @@ class _SpyreImpl:
             self._C.start_runtime()
             self._initialized = True
 
-            ## Run patch on import
-            from ._monkey_patch import _patch_tensor_for_spyre
-
-            _patch_tensor_for_spyre()
-
             from torch_spyre._inductor import _autoload as ts_autoload
 
             ts_autoload()
@@ -226,6 +221,11 @@ def _autoload():
     # Set all the appropriate state on PyTorch
     torch.utils.rename_privateuse1_backend(DEVICE_NAME)
     torch._register_device_module(DEVICE_NAME, make_spyre_module())
+
+    # Patch torch.Tensor.to / torch.empty for device_layout support
+    from ._monkey_patch import _patch_tensor_for_spyre
+    _patch_tensor_for_spyre()
+
     import torch_spyre.ops.eager  # noqa: F401
     from torch_spyre._inductor import _light_autoload
 

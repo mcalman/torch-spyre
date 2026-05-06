@@ -74,6 +74,7 @@ def _patch_tensor_for_spyre():
         ):  # use original implementation if no layout is provided
             return orig_to(self, *args, **kwargs)
         else:
+            getattr(torch, DEVICE_NAME)._impl._lazy_init()
             # Check if copy kwarg is explicitly set
             copy = kwargs.get("copy")
 
@@ -145,6 +146,7 @@ def _patch_tensor_for_spyre():
                 memory_format=memory_format,
             )
         else:
+            getattr(torch, DEVICE_NAME)._impl._lazy_init()
             # layout_opt is omitted; c10::Layout has no pybind11 type caster,
             # so py_empty_with_layout drops that parameter and always uses
             # the default (Strided).
